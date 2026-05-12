@@ -1,0 +1,57 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# iCloud placeholder (이동 후에도 잔존 가능)
+*.icloud
+
+# Claude Code plugin cache
+.claude-plugin/cache/
+
+# Claude agent-memory (project-scope) — 운영자 개인 데이터로 격리, git churn 방지
+.claude/agent-memory/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs / temp / cache
+*.log
+*.tmp
+*.bak
+.cache/
+tmp/
+temp/
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+secrets.json
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Build artifacts
+coverage/
+dist/
+build/
+.tsbuildinfo
