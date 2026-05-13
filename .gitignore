@@ -14,8 +14,9 @@ Icon
 # Claude Code plugin cache
 .claude-plugin/cache/
 
-# Claude agent-memory (project-scope) — 운영자 개인 데이터로 격리, git churn 방지
-.claude/agent-memory/
+# Claude Code working-dir scope 메타 — 운영자 로컬 환경 한정
+# (.claude/settings.json의 enabledPlugins 등이 외부 사용자 환경 강제 위험)
+.claude/
 
 # Editor / IDE
 .vscode/
