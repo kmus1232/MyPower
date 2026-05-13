@@ -632,9 +632,9 @@ grep -E "^## §[1-6]" "${HARNESS}/plugin/references/decision-catalog-template.md
 - [ ] **1.7 Step 1 통합 검증**
 
 ```bash
-# 6 파일 존재 + placeholder 잔존 0건
+# 7 파일 존재 (코어 6 + ambiguity-protocol.md — ADR 2026-05-13 채택) + placeholder 잔존 0건
 ls "${HARNESS}/plugin/references/"*.md | wc -l
-# 기대: 6
+# 기대: 7
 
 grep -rE "(TBD|TODO|FIXME|XXX|\{slug\}|\{name\})" "${HARNESS}/plugin/references/" --include="*.md" | grep -v "decision-catalog-template" | wc -l
 # 기대: 0 (decision-catalog-template.md는 본문에 `{N}` 같은 형식 표기 가능 — 예외 grep)

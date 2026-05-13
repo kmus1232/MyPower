@@ -57,6 +57,7 @@ v1 빌드 진입 직전. `plugin/` 하위는 빈 골격(`.claude-plugin/` · `ag
 | ADR | [`docs/adrs/2026-05-11-mypower-subagent-memory.md`](docs/adrs/2026-05-11-mypower-subagent-memory.md) | 서브에이전트 메모리 정책 |
 | ADR | [`docs/adrs/2026-05-11-mypower-changelog-policy.md`](docs/adrs/2026-05-11-mypower-changelog-policy.md) | 변경 이력 정책 |
 | ADR | [`docs/adrs/2026-05-12-mypower-docs-plugin-split.md`](docs/adrs/2026-05-12-mypower-docs-plugin-split.md) | docs/ vs plugin/ 분리 |
+| ADR | [`docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`](docs/adrs/2026-05-13-ambiguity-protocol-adopt.md) | 모호함 처리 규칙(ARP) 채택 + MVP 강제 메커니즘 설계 (hook·검증 에이전트 v1.1+) |
 
 새 결정은 spec 갱신 또는 ADR 추가로 누적한다. README나 본 CLAUDE.md 본문에 결정을 박지 않는다.
 
@@ -87,3 +88,5 @@ marketplace 이름은 `mypower-dev`이며, install 명령은 항상 `mypower@myp
 - **commit 메시지**: 한국어, 의도(왜)를 한 줄로 앞에 둔다
 - **plugin install 검증**: `~/.claude/plugins/cache/<marketplace>/<plugin>/docs/` 부재 grep 필수 — `source: "./plugin"`이 docs/ 제외했는지 확인
 - **빌드 plan은 Step 순서 준수**: Step 0~13 건너뛰지 않음. 각 Step의 acceptance criteria + 검증 grep 통과를 다음 Step 진입 조건으로 본다
+- **운영자에게 의견·결정 묻는 모든 메시지는 가독성 우선**: 압축 표현·영어 약어 ID·하위 reviewer 산출물 jargon 패스스루 금지. 운영자가 별도 해석 없이 즉시 답할 수 있는 형태로 작성. 풀이 필요한 용어는 본문 내 첫 등장 시 풀어 쓴다
+- **라이프사이클 슬래시 스킬 빌드·운영 시 모호함 만나면** `plugin/references/ambiguity-protocol.md` 4단계 따름. v1 MVP 단계는 슬래시 스킬 프롬프트만 강제, 검증 에이전트는 v1.1+ 예정

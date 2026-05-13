@@ -1,6 +1,6 @@
 # mypower 프레임워크 설계 문서
 
-> 최종 갱신: 2026-05-12 | v3.15 | Claude Code 운영자용 멀티 에이전트 스킬 프레임워크 (Claude Code plugin)
+> 최종 갱신: 2026-05-13 | v3.16 | Claude Code 운영자용 멀티 에이전트 스킬 프레임워크 (Claude Code plugin)
 >
 > 변경 이력은 `docs/adrs/` + git log 단일 진실 출처. ADR `2026-05-11-mypower-changelog-policy.md` 참조. spec 본문은 현재 상태만 기술.
 
@@ -225,6 +225,8 @@ MyPower/                              GitHub repo root (`/plugin marketplace add
 ```
 
 > v3.14 → v3.15 변경: docs/와 plugin/ 분리 — git clone에 학습 자료 포함하되 `/plugin install`은 plugin/만 cache로 복사. v3.14는 단일 mypower/ repo에 docs/와 plugin source 혼재 (superpowers 캐시 검증 결과 docs/까지 install에 따라가 사용자 cache 오염). 결정 근거·트레이드오프는 ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`.
+>
+> v3.15 → v3.16 변경: 모호함 처리 규칙(ARP) 채택 + `plugin/references/ambiguity-protocol.md` 추가 (코어 6 → 7). v1 MVP에서 hook·검증 에이전트 미도입 (슬래시 스킬 프롬프트 단독 강제), v1.1+ 도입 예정. 결정 근거·트레이드오프는 ADR `docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`.
 
 **root `.claude-plugin/marketplace.json` minimal schema** (운영자 식별자는 fork 시 갈아끼움):
 
@@ -1859,6 +1861,7 @@ Plan 인덱스 파일 경로: docs/plans/{slug}/index.json (당신이 직접 Rea
 | `critical-decisions-guide.md` | executing-plan 의사결정 분류 게이트 | 분류 A/B/C 카테고리 + 게이트 형식 + 모호 시 분류 원칙 |
 | `tdd-guide.md` | tdd 스킬 + executing-plan 영역 판단 | TDD 적용 영역 판단 표 + Red-Green-Refactor 절차 + 안티패턴 |
 | `adr-template.md` | 모든 스킬 ADR 작성 시 | ADR 양식 (배경·결정·이유·트레이드오프·영향·후속 추적) |
+| `ambiguity-protocol.md` | 모든 lifecycle 스킬 + tdd 스킬 공통 참조 | 모호함 처리 규칙 4단계 + 분류 + 강제 방법 (v1 MVP는 슬래시 스킬 프롬프트 단독, hook·검증 에이전트는 v1.1+) |
 | `persona-checklists/<name>.md` (12개) | 각 페르소나 spawn 시 | 페르소나별 sub-checklist + 출력 템플릿 |
 
 ### 9.2.1 observability-guide.md (코드 작성 가이드라인)
