@@ -1,0 +1,8 @@
+{
+  "name": "mypower",
+  "version": "1.0.0",
+  "description": "Multi-agent skill framework for Claude Code (6 lifecycle skills + tdd sub-process + 12 reviewer personas)",
+  "author": { "name": "<owner-name>", "email": "<owner-email>" },
+  "repository": "https://github.com/<owner>/mypower",
+  "license": "MIT"
+}

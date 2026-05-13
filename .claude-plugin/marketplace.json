@@ -1,0 +1,14 @@
+{
+  "name": "mypower-dev",
+  "description": "mypower skills library marketplace",
+  "owner": { "name": "<owner-name>", "email": "<owner-email>" },
+  "plugins": [
+    {
+      "name": "mypower",
+      "description": "Multi-agent skill framework for Claude Code (6 lifecycle skills + tdd sub-process + 12 reviewer personas)",
+      "version": "1.0.0",
+      "source": "./plugin",
+      "author": { "name": "<owner-name>", "email": "<owner-email>" }
+    }
+  ]
+}
