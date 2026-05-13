@@ -4,7 +4,7 @@ Claude Code plugin — 6단계 lifecycle 스킬(brainstorming / writing-plan / e
 
 ## 설계 문서
 
-본 repo의 `docs/specs/2026-05-09-mypower-design.md`. plugin source(skills·agents·references·hooks·tests)는 `plugin/` 하위. v3.15 디렉토리 분리 결정 — ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`.
+본 repo의 `docs/specs/2026-05-09-mypower-design.md`. plugin source(skills·agents·references·hooks·tests)는 `plugin/` 하위. 디렉토리 분리 결정 — ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`.
 
 ## 설치
 

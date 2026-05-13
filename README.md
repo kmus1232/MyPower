@@ -27,7 +27,7 @@ v1 빌드 진입 직전 — Step 0~13 빌드 plan(`docs/superpowers/plans/2026-0
 
 ## 의사결정 누적
 
-- spec: [`docs/specs/2026-05-09-mypower-design.md`](docs/specs/2026-05-09-mypower-design.md) (v3.15)
+- spec: [`docs/specs/2026-05-09-mypower-design.md`](docs/specs/2026-05-09-mypower-design.md)
 - v1 빌드 plan: [`docs/superpowers/plans/2026-05-11-mypower-v1-build.md`](docs/superpowers/plans/2026-05-11-mypower-v1-build.md)
 - ADR: `docs/adrs/` (plugin-adopt / subagent-memory / changelog-policy / docs-plugin-split / 추후 v1 빌드 완료 ADR)
 

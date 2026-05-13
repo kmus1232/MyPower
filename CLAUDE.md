@@ -51,7 +51,7 @@ v1 빌드 진입 직전. `plugin/` 하위는 빈 골격(`.claude-plugin/` · `ag
 
 | 종류 | 파일 | 비고 |
 |------|------|------|
-| spec | [`docs/specs/2026-05-09-mypower-design.md`](docs/specs/2026-05-09-mypower-design.md) | v3.15 — 설계의 단일 출처 |
+| spec | [`docs/specs/2026-05-09-mypower-design.md`](docs/specs/2026-05-09-mypower-design.md) | 설계의 단일 출처 |
 | plan | [`docs/superpowers/plans/2026-05-11-mypower-v1-build.md`](docs/superpowers/plans/2026-05-11-mypower-v1-build.md) | v1 빌드 Step 0~13 |
 | ADR | [`docs/adrs/2026-05-11-mypower-plugin-adopt.md`](docs/adrs/2026-05-11-mypower-plugin-adopt.md) | plugin 채택 결정 |
 | ADR | [`docs/adrs/2026-05-11-mypower-subagent-memory.md`](docs/adrs/2026-05-11-mypower-subagent-memory.md) | 서브에이전트 메모리 정책 |
@@ -82,7 +82,7 @@ marketplace 이름은 `mypower-dev`이며, install 명령은 항상 `mypower@myp
 
 ## 작업 시 gotcha
 
-- **신규 파일 생성 전** spec(v3.15) · 관련 ADR에서 결정 존재 여부 먼저 grep. 결정 충돌 시 spec 갱신 또는 새 ADR 작성 — 즉흥 결정 금지
+- **신규 파일 생성 전** spec · 관련 ADR에서 결정 존재 여부 먼저 grep. 결정 충돌 시 spec 갱신 또는 새 ADR 작성 — 즉흥 결정 금지
 - **`plugin/` 변경 시**: placeholder 정책 준수 + Step 단위 acceptance criteria + 검증 grep 통과 + smoke.sh 통과
 - **`docs/` 변경 시**: 의사결정 누적 흐름 유지. 임시 메모·handoff는 repo 외 보관
 - **commit 메시지**: 한국어, 의도(왜)를 한 줄로 앞에 둔다

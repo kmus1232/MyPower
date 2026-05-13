@@ -12,9 +12,13 @@
 **Tech Stack:** Claude Code plugin (manifest JSON), bash 5+ (smoke.sh / applying-approval-gate.sh), markdown (SKILL.md / agents / references), git (MyPower repo 단일 + `plugin/` 영역이 install 대상).
 
 **Source of truth:**
-- Spec: [`docs/specs/2026-05-09-mypower-design.md`](../../specs/2026-05-09-mypower-design.md) (현재 최신은 v3.15 — frontmatter top 1줄 "최종 갱신: 2026-05-12 | v3.15"만 차수 인용)
-- 핸드오프 v3.14: [`docs/specs/2026-05-11-mypower-handoff-v3.14.md`](../../specs/2026-05-11-mypower-handoff-v3.14.md) (§5 워크스페이스 골격 + §6 운영 모드 확인 결과 — Step 0 사전 확인 행 인용)
-- ADR: [plugin-adopt](../../adrs/2026-05-11-mypower-plugin-adopt.md), [subagent-memory](../../adrs/2026-05-11-mypower-subagent-memory.md), [changelog-policy](../../adrs/2026-05-11-mypower-changelog-policy.md)
+- Spec: [`docs/specs/2026-05-09-mypower-design.md`](../../specs/2026-05-09-mypower-design.md) — 설계 단일 진실 출처
+- ADR:
+  - [plugin-adopt](../../adrs/2026-05-11-mypower-plugin-adopt.md) — plugin 채택 결정
+  - [subagent-memory](../../adrs/2026-05-11-mypower-subagent-memory.md) — 서브에이전트 메모리 정책
+  - [changelog-policy](../../adrs/2026-05-11-mypower-changelog-policy.md) — 본문에 차수 마커 박지 않음(spec frontmatter top 1줄만 예외)
+  - [docs-plugin-split](../../adrs/2026-05-12-mypower-docs-plugin-split.md) — docs/ vs plugin/ 분리
+  - [ambiguity-protocol-adopt](../../adrs/2026-05-13-ambiguity-protocol-adopt.md) — 모호함 처리 규칙(ARP) 채택, references 코어 6→7
 - 빌드 순서 표: spec §11.2 (Step 0~13). 본 plan은 같은 번호 체계를 따른다.
 - §1.4 mypower 분류 A 사전 응답: spec L47~L62. 모든 step의 결정 카탈로그 G2(§6.2.2)에서 인용.
 
@@ -58,7 +62,7 @@
   - #22 debugging 스킬 신설
   - #23 hooks 추가 도입 (commit-msg / pre-push 등)
 
-**작업 디렉토리 anchor**: 본 plan의 절대 경로는 모두 `~/Projects/MyPower/` 기준 (v3.15부터 — ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`). 이하 표기 편의를 위해 `${HARNESS}`로 줄여 인용 (실행 시 절대 경로로 치환). MyPower repo 단일 git repo + 두 영역으로 분리:
+**작업 디렉토리 anchor**: 본 plan의 절대 경로는 모두 `~/Projects/MyPower/` 기준 (분리 결정 근거 = ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`). 이하 표기 편의를 위해 `${HARNESS}`로 줄여 인용 (실행 시 절대 경로로 치환). MyPower repo 단일 git repo + 두 영역으로 분리:
 - `${HARNESS}/docs/` = 의사결정 누적 (spec·plan·ADR — git commit 포함, `/plugin install`엔 무관)
 - `${HARNESS}/plugin/` = Claude Code plugin install 대상 (skills·agents·references·hooks·tests + `.claude-plugin/plugin.json`). marketplace.json은 repo root `.claude-plugin/marketplace.json`에 두고 `source: "./plugin"`으로 plugin/만 cache 복사
 - 마켓플레이스 이름 = `mypower-dev`, plugin slug = `mypower` — install 명령은 `mypower@mypower-dev` 형식
@@ -69,10 +73,10 @@
 
 다음 모두 충족 후 Step 0 진입. 미충족 시 운영자에 보고 후 중단:
 
-- [ ] `${HARNESS}/docs/specs/2026-05-09-mypower-design.md` 존재 + L2 frontmatter top에 "최종 갱신: 2026-05-12 | v3.15" 1행 grep 1건
-- [ ] `${HARNESS}/docs/adrs/2026-05-11-mypower-{plugin-adopt,subagent-memory,changelog-policy}.md` 3개 모두 존재
-- [ ] `${HARNESS}/plugin/` 디렉토리 존재 (빈 골격 — handoff §5 L42~L57 인용)
-- [ ] 운영자 환경 `~/.claude/settings.json`에 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 활성 (핸드오프 §6 L59~L64 확인 완료)
+- [ ] `${HARNESS}/docs/specs/2026-05-09-mypower-design.md` 존재 + frontmatter top "최종 갱신:" 1행 존재 (차수 표기 검증은 본문 정책상 불요 — git/ADR이 단일 출처)
+- [ ] `${HARNESS}/docs/adrs/` 하위 5개 ADR 모두 존재: `2026-05-11-mypower-plugin-adopt.md` / `2026-05-11-mypower-subagent-memory.md` / `2026-05-11-mypower-changelog-policy.md` / `2026-05-12-mypower-docs-plugin-split.md` / `2026-05-13-ambiguity-protocol-adopt.md`
+- [ ] `${HARNESS}/plugin/` 디렉토리 존재 (`.claude-plugin/` · `agents/` · `references/` · `skills/` 골격 + ARP 채택에 따라 `plugin/references/ambiguity-protocol.md` 사전 존재)
+- [ ] 운영자 환경 `~/.claude/settings.json`에 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 활성
 - [ ] `which claude` 출력 = Claude Code CLI 절대 경로 존재 + `claude --version` 출력 grep
 - [ ] `which gh` 출력 존재 (PR 리뷰 스킬이 의존)
 - [ ] superpowers 플러그인 v5.1.0 활성 — `ls ~/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/` 출력에 `skills/` 디렉토리 존재
@@ -124,7 +128,7 @@ rmdir "${HARNESS}/plugin/commands/"
 
 - [ ] **0.2 `${HARNESS}/.gitignore` 작성 (root)**
 
-v3.15 분리 구조 + 운영자 합의 항목 (2026-05-12 결정 — agent-memory ignore, working drafts 디렉토리 없음):
+docs/ vs plugin/ 분리 구조 + 운영자 합의 항목 (2026-05-12 결정 — agent-memory ignore, working drafts 디렉토리 없음):
 
 ```gitignore
 # macOS
@@ -206,7 +210,7 @@ spec §4.1·§11.2 Step 0 AC 인용. **6필드 minimal schema** (name·version·
 
 - [ ] **0.4 `${HARNESS}/.claude-plugin/marketplace.json` 작성 (root — entry point)**
 
-v3.15 분리 구조: marketplace.json은 root `.claude-plugin/` 위치 (GitHub repo root에서 `/plugin marketplace add` 자동 발견). minimal schema 5필드 (name·description·owner·plugins[0].name·plugins[0].source). **`source: "./plugin"`로 plugin/ 디렉토리만 cache 복사**.
+분리 구조: marketplace.json은 root `.claude-plugin/` 위치 (GitHub repo root에서 `/plugin marketplace add` 자동 발견). minimal schema 5필드 (name·description·owner·plugins[0].name·plugins[0].source). **`source: "./plugin"`로 plugin/ 디렉토리만 cache 복사**.
 
 ```json
 {
@@ -333,7 +337,7 @@ Claude Code plugin — 6단계 lifecycle 스킬(brainstorming / writing-plan / e
 
 ## 설계 문서
 
-본 repo의 `docs/specs/2026-05-09-mypower-design.md`. plugin source(skills·agents·references·hooks·tests)는 `plugin/` 하위. v3.15 디렉토리 분리 결정 — ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`.
+본 repo의 `docs/specs/2026-05-09-mypower-design.md`. plugin source(skills·agents·references·hooks·tests)는 `plugin/` 하위. 디렉토리 분리 결정 — ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`.
 
 ## 설치
 
@@ -412,7 +416,7 @@ Claude Code 운영자용 멀티 에이전트 스킬 프레임워크 — toy/educ
 
 ## 의사결정 누적 학습 자료
 
-- spec: `docs/specs/2026-05-09-mypower-design.md` (v3.15)
+- spec: `docs/specs/2026-05-09-mypower-design.md`
 - 빌드 plan: `docs/superpowers/plans/2026-05-11-mypower-v1-build.md`
 - ADR: `docs/adrs/*.md` (plugin-adopt / subagent-memory / changelog-policy / docs-plugin-split / v1 빌드 완료 ADR 등)
 
@@ -436,7 +440,7 @@ git commit -m "build(step0): MyPower repo 골격 + plugin manifest + docs 누적
 - plugin/tests/smoke.sh
 - plugin/README.md + root README.md
 - .gitignore (macOS·iCloud·secrets·node·python·build·.claude/agent-memory/)
-- docs/specs/ + docs/adrs/ + docs/superpowers/plans/ (spec v3.15 + ADR 4개 + v1 빌드 plan)"
+- docs/specs/ + docs/adrs/ + docs/superpowers/plans/ (spec + ADR 5개 + v1 빌드 plan)"
 ```
 
 - [ ] **0.9 Step 0 검증 — smoke.sh 정적 + 수동 plugin 흐름**
@@ -469,9 +473,9 @@ git commit --allow-empty -m "build(step0): smoke.sh 정적 검증 통과 + 운�
 
 ---
 
-## Step 1: references 코어 6개
+## Step 1: references 코어 7개
 
-**Goal:** references/ 하위 6개 가이드 markdown 파일을 작성. agents·skills 본문이 이 references를 Read tool로 로드해 적용하는 단일 진실 출처. observability-guide의 self-check 4항목은 §6.3.3-1 spec에 박혀 있어 1:1 인용.
+**Goal:** references/ 하위 7개 가이드 markdown 파일을 확보. agents·skills 본문이 이 references를 Read tool로 로드해 적용하는 단일 진실 출처. observability-guide의 self-check 4항목은 §6.3.3-1 spec에 박혀 있어 1:1 인용. ARP ADR(`docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`) 채택으로 `ambiguity-protocol.md`가 코어 한 자리 차지 — v1 MVP에서 슬래시 스킬 프롬프트 단독 강제(hook·검증 에이전트는 v1.1+ 도입).
 
 **Files:**
 - Create: `${HARNESS}/plugin/references/adr-template.md`
@@ -480,6 +484,7 @@ git commit --allow-empty -m "build(step0): smoke.sh 정적 검증 통과 + 운�
 - Create: `${HARNESS}/plugin/references/critical-decisions-guide.md`
 - Create: `${HARNESS}/plugin/references/tdd-guide.md`
 - Create: `${HARNESS}/plugin/references/decision-catalog-template.md`
+- Verify (이미 사전 작성 — ARP ADR 채택분): `${HARNESS}/plugin/references/ambiguity-protocol.md`
 
 **결정 카탈로그 인용 (§1.4):**
 
@@ -488,7 +493,7 @@ git commit --allow-empty -m "build(step0): smoke.sh 정적 검증 통과 + 운�
 | 보안 | references 본문에 secret 없음 |
 | 데이터 스키마 | 영구 저장 데이터 없음 (가이드 markdown만) |
 | 비용 | LLM 토큰 비용은 가이드 길이에 따라 결정. observability-guide·tdd-guide 각 ~80줄, 나머지 ~50줄 목표 — 운영자가 한 페이지로 검토 가능 (§1.2 목표 1) |
-| scope | spec §9.1 references 파일 표 + §9.2.1~§9.2.3 본문 정의에 한정. `persona-checklists/` 12개는 Step 2에서 별도 처리 |
+| scope | spec §9.1 references 파일 표 + §9.2.1~§9.2.3 본문 정의 + ARP ADR `2026-05-13-ambiguity-protocol-adopt.md`의 `ambiguity-protocol.md` 한정. `persona-checklists/` 12개는 Step 2에서 별도 처리 |
 | TDD framework | 본 step 산출물은 markdown — `grep placeholder 0건 + 본문 절차 grep` 검증 (§1.4 mypower 자체 빌드 행 인용) |
 | 로깅 정책 | observability-guide.md 본문에 spec §9.2.1 5개 헤더(로깅 / 메트릭 / Trace / 에러 핸들링 / 민감정보) 인용 |
 
@@ -645,7 +650,7 @@ grep -rE "(TBD|TODO|FIXME|XXX|\{slug\}|\{name\})" "${HARNESS}/plugin/references/
 ```bash
 cd "${HARNESS}"
 git add plugin/references/
-git commit -m "build(step1): references 코어 6개 (adr/observability/tech-currency/critical-decisions/tdd/decision-catalog)"
+git commit -m "build(step1): references 코어 7개 (adr/observability/tech-currency/critical-decisions/tdd/decision-catalog + ambiguity-protocol 사전 작성분)"
 ```
 
 ---
@@ -2814,7 +2819,7 @@ git commit -m "build(step12): skills/applying/SKILL.md (9 골격 + 검증 팀 + 
 > 작성: YYYY-MM-DD | 상태: 완료 | 분류: B (자율 결정 후 ADR 흡수)
 
 ## 1. 배경
-- spec `docs/specs/2026-05-09-mypower-design.md` v3.15 기준 v1 빌드 진행
+- spec `docs/specs/2026-05-09-mypower-design.md` 기준 v1 빌드 진행
 - 빌드 plan `docs/superpowers/plans/2026-05-11-mypower-v1-build.md` (superpowers writing-plans 사용)
 - 14 step (Step 0~13) 모두 완료. self-bootstrap 메타 결정에 따라 v1 빌드 plan 자체는 §5.5 평가 점수 루프·§6.2.2 결정 카탈로그·§6.1.3 사전 체크리스트 미적용 (v1.1부터 self-application)
 - 운영자 토이 프로젝트로 6 lifecycle 통합 동작 1회 검증 완료
@@ -2832,7 +2837,7 @@ v1 빌드 산출물 (mypower plugin repo):
 - v1.0.0 tag
 
 ## 3. 이유
-- spec v3.15 기반 6 lifecycle 슬래시 + 12 페르소나 + 강제력 4 prompt-level + 1 hook이 운영자 학습 목적(개인 단독 사용)과 안전 임계치(destructive 명령 차단)를 동시에 충족. spec §1.4 분류 A 6 카테고리 응답에 박힌 결정을 plan 전 step에서 인용
+- spec 기반 6 lifecycle 슬래시 + 12 페르소나 + 강제력 4 prompt-level + 1 hook이 운영자 학습 목적(개인 단독 사용)과 안전 임계치(destructive 명령 차단)를 동시에 충족. spec §1.4 분류 A 6 카테고리 응답에 박힌 결정을 plan 전 step에서 인용
 - self-bootstrap 메타 결정 (v1 빌드 plan 한정 미적용)으로 v1.0의 빌드 부담을 낮추고, v1.1부터 self-application으로 자기 검증 적용 — early bootstrap 모순 회피
 - 플러그인 표준(plugin.json / marketplace.json / hooks.json) 채택으로 `git pull + claude plugin update` 한 줄 갱신 흐름 확보 (ADR `plugin-adopt.md` 인용)
 
@@ -2877,7 +2882,7 @@ git commit -m "docs(adr): mypower v1 빌드 완료"
 
 - [ ] spec §13 검증 체크리스트 모든 행 ✓
 - [ ] tests/integration-checklist.md 모든 행 ✓
-- [ ] git log에 commit 15건 (Step 0가 0.8 + 0.10 두 번, Step 1~13 각 1번) + v1.0.0 tag 1건 존재 — 본 카운트는 MyPower repo 기준 (round 2 Critical 2 fix). v3.15 분리 구조라 첫 commit에 docs/ + plugin/ 골격이 모두 박힌 단일 commit으로 처리
+- [ ] git log에 commit 15건 (Step 0가 0.8 + 0.10 두 번, Step 1~13 각 1번) + v1.0.0 tag 1건 존재 — 본 카운트는 MyPower repo 기준 (round 2 Critical 2 fix). docs/와 plugin/ 분리 구조라 첫 commit에 docs/ + plugin/ 골격이 모두 박힌 단일 commit으로 처리
 - [ ] MyPower repo crispness — placeholder grep 0건 (`grep -rE "(TBD|TODO|FIXME|XXX)" docs/ plugin/ --include="*.md"`)
 - [ ] 운영자 식별자 잔존 0건 grep (빌드 운영자 본인 이름·소속·직무·GitHub handle·실이메일을 grep target으로 — spec §13 인용)
 - [ ] frontmatter linter 결과 — agents `tools:` 콤마 구분 12개 / skills `allowed-tools:` 스페이스 구분 7개 (spec §5.1 IMPORTANT 박스)

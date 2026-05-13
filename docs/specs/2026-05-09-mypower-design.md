@@ -224,9 +224,7 @@ MyPower/                              GitHub repo root (`/plugin marketplace add
         └── integration-checklist.md  Step 13 운영자 토이 프로젝트 수동 검증
 ```
 
-> v3.14 → v3.15 변경: docs/와 plugin/ 분리 — git clone에 학습 자료 포함하되 `/plugin install`은 plugin/만 cache로 복사. v3.14는 단일 mypower/ repo에 docs/와 plugin source 혼재 (superpowers 캐시 검증 결과 docs/까지 install에 따라가 사용자 cache 오염). 결정 근거·트레이드오프는 ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`.
->
-> v3.15 → v3.16 변경: 모호함 처리 규칙(ARP) 채택 + `plugin/references/ambiguity-protocol.md` 추가 (코어 6 → 7). v1 MVP에서 hook·검증 에이전트 미도입 (슬래시 스킬 프롬프트 단독 강제), v1.1+ 도입 예정. 결정 근거·트레이드오프는 ADR `docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`.
+> 구조 결정 근거: docs/와 plugin/ 분리 = ADR `docs/adrs/2026-05-12-mypower-docs-plugin-split.md`. 모호함 처리 규칙(ARP) 채택 + `plugin/references/ambiguity-protocol.md` 추가 = ADR `docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`. ARP는 v1 MVP에서 슬래시 스킬 프롬프트 단독 강제, hook·검증 에이전트는 v1.1+ 도입 예정.
 
 **root `.claude-plugin/marketplace.json` minimal schema** (운영자 식별자는 fork 시 갈아끼움):
 
