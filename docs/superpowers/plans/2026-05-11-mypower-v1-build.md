@@ -637,12 +637,20 @@ grep -E "^## §[1-6]" "${HARNESS}/plugin/references/decision-catalog-template.md
 - [ ] **1.7 Step 1 통합 검증**
 
 ```bash
-# 7 파일 존재 (코어 6 + ambiguity-protocol.md — ADR 2026-05-13 채택) + placeholder 잔존 0건
+# 7 파일 존재 (코어 6 + ambiguity-protocol.md — ADR 2026-05-13 채택)
 ls "${HARNESS}/plugin/references/"*.md | wc -l
 # 기대: 7
 
-grep -rE "(TBD|TODO|FIXME|XXX|\{slug\}|\{name\})" "${HARNESS}/plugin/references/" --include="*.md" | grep -v "decision-catalog-template" | wc -l
-# 기대: 0 (decision-catalog-template.md는 본문에 `{N}` 같은 형식 표기 가능 — 예외 grep)
+# 진짜 placeholder 잔존 0건 검사. 다음 3종은 가이드 의도상 정상 표기이므로 예외:
+#   - decision-catalog-template.md 본문의 `{N}` 등 (템플릿 자체)
+#   - 가이드가 안내하는 ADR 파일명 패턴 `YYYY-MM-DD-{slug}-...` (사용자가 ADR 만들 때 갈아끼우라는 의도)
+#   - ambiguity-protocol.md의 `## 5. 미해소 항목 (TODO)` 정상 섹션 헤더
+grep -rnE "(TBD|TODO|FIXME|XXX|\{slug\}|\{name\})" "${HARNESS}/plugin/references/" --include="*.md" \
+    | grep -v "decision-catalog-template" \
+    | grep -vE "YYYY-MM-DD-\{slug\}" \
+    | grep -vE "ambiguity-protocol\.md:[0-9]+:## 5\. 미해소 항목 \(TODO\)" \
+    | wc -l
+# 기대: 0
 ```
 
 - [ ] **1.8 commit**
@@ -650,7 +658,7 @@ grep -rE "(TBD|TODO|FIXME|XXX|\{slug\}|\{name\})" "${HARNESS}/plugin/references/
 ```bash
 cd "${HARNESS}"
 git add plugin/references/
-git commit -m "build(step1): references 코어 7개 (adr/observability/tech-currency/critical-decisions/tdd/decision-catalog + ambiguity-protocol 사전 작성분)"
+git commit -m "build(step1): references 코어 7개 (adr/observability/tech-currency/critical-decisions/tdd/decision-catalog + 사전 작성 ambiguity-protocol)"
 ```
 
 ---
@@ -2886,8 +2894,20 @@ git commit -m "docs(adr): mypower v1 빌드 완료"
 - [ ] MyPower repo crispness — placeholder grep 0건 (`grep -rE "(TBD|TODO|FIXME|XXX)" docs/ plugin/ --include="*.md"`)
 - [ ] 운영자 식별자 잔존 0건 grep (빌드 운영자 본인 이름·소속·직무·GitHub handle·실이메일을 grep target으로 — spec §13 인용)
 - [ ] frontmatter linter 결과 — agents `tools:` 콤마 구분 12개 / skills `allowed-tools:` 스페이스 구분 7개 (spec §5.1 IMPORTANT 박스)
+- [ ] 본문 차수 마커 잔존 0건 — changelog-policy ADR §2 일관 적용 검증. mypower spec 차수 패턴은 `v3.X`로 고정. release version(v1.0·v1.1.0 등)·외부 runtime version(Claude Code v2.1.x, superpowers v5.1.0 등)·release tag(v1.0.0)는 정책 면제로 grep 대상이 아니다:
 
-위 6 항목 모두 통과 = mypower v1 출시 가능. v1.1 진입 신호.
+  ```bash
+  grep -rnE "v3\.[0-9]+" \
+      docs/specs/ docs/superpowers/ CLAUDE.md README.md plugin/ \
+      --include="*.md" \
+      | grep -v "docs/adrs/" \
+      | grep -v "docs/specs/2026-05-09-mypower-design.md:3:" \
+      | wc -l
+  # 기대: 0. ADR 본문과 spec frontmatter top 1줄(최종 갱신:)만 예외.
+  # 후속 메이저 차수가 v4로 넘어가면 본 grep의 `v3` 자리를 갱신.
+  ```
+
+위 7 항목 모두 통과 = mypower v1 출시 가능. v1.1 진입 신호.
 
 ---
 
