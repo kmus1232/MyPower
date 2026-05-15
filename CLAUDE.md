@@ -37,15 +37,22 @@ Claude Code 운영자용 멀티 에이전트 스킬 프레임워크 — toy / ed
 
 ## 현재 상태
 
-v1 빌드 진입 직전. `plugin/` 하위는 빈 골격(`.claude-plugin/` · `agents/` · `references/` · `skills/`).
+v1 빌드 Step 0~3 완료. 다음 = Step 4 (4 checklist — plan/verification/pr-review/applying).
 
-- **빌드 plan**: [`docs/superpowers/plans/2026-05-11-mypower-v1-build.md`](docs/superpowers/plans/2026-05-11-mypower-v1-build.md) — Step 0~13 순서 실행
-- **v1 완료 시 채워질 산출물**:
-  - `plugin/skills/` — 7개 (6 lifecycle 슬래시 스킬 + tdd 스킬)
-  - `plugin/agents/` — 12 reviewer 페르소나
-  - `plugin/references/` — 코어 6개 + persona-checklists 12개
-  - `plugin/hooks/` — destructive 패턴 차단 hook
-  - `plugin/tests/smoke.sh` — install/uninstall + 인식 + hook 검증
+| Step | 산출 | commit |
+|---|---|---|
+| 0 | plugin manifest + smoke.sh 정적 검증 | d451f1f |
+| 1 | references 코어 7개 | 1515555 |
+| 2 | persona-checklists 12개 (2층) | 5632aeb |
+| 3 | agents 12개 (1층) | 477456f |
+
+- **빌드 plan**: [`docs/superpowers/plans/2026-05-11-mypower-v1-build.md`](docs/superpowers/plans/2026-05-11-mypower-v1-build.md) — Step 0~13 순서 실행. 각 Step acceptance criteria + 검증 grep 통과를 다음 Step 진입 조건으로 본다
+- **남은 산출물 (Step 4~13)**:
+  - `plugin/references/` — checklist 4개 (Step 4)
+  - `plugin/hooks/applying-approval-gate.sh` — destructive 패턴 차단 (Step 5)
+  - `plugin/skills/` — 7개 (Step 6~12, 6 lifecycle 슬래시 스킬 + tdd sub-process)
+  - 통합 테스트 — 6 lifecycle + tdd + hook 차단 동작 1회씩 검증 (Step 13)
+- **v1 전체 종료 시점**에 본 섹션을 다시 압축한다
 
 ## 의사결정 누적 (단일 출처)
 
