@@ -30,6 +30,22 @@
 - [ ] 잘못된 사용 패턴 — 공식 docs "Don't do this" 위반
 - [ ] 버전 호환성 깨짐 — 사용 중인 버전이 호출 API와 호환 안 됨
 
+### C.1 도구 호출 결과 파싱 — 결론 도출 알고리즘
+
+MCP·WebFetch 응답 본문에서 다음 신호를 순서대로 grep. 첫 매치되는 신호로 분류 확정:
+
+| 순서 | grep 신호 | 결론 |
+|---|---|---|
+| 1 | `EOL: YYYY-MM-DD` 또는 `removed in v<N>` 명시 + 본 PR 사용 버전이 EOL 이전 | **deprecated — Critical** (EOL date 인용) |
+| 2 | `deprecated` 키워드 + maintenance only 표기 | **deprecated — Important** (대체재 명시 + 마이그레이션 ETA) |
+| 3 | "Don't do this" / "Anti-pattern" / "Warning" 본문 + 본 PR 사용 패턴 일치 | **wrong-pattern — Important** |
+| 4 | `stable` 표기 + 최근 release(<12개월) + deprecation 표기 없음 | **safe — FYI** (최신 메이저 아니어도 통과) |
+| 5 | 응답 본문에 위 4개 신호 모두 없음 | **safe — 단, 출처 URL과 grep 결과 0건 사실을 finding에 명시** |
+
+날짜 비교는 명시 EOL date vs 현재 date(`date +%Y-%m-%d`) 단순 lexicographic 비교. SemVer 비교는 사용 버전 vs 응답 본문 `removed in vX` 정수 비교.
+
+**도구 호출 직후 응답을 1회만 grep**해 결론 도출. 추가 추론 금지 — 추론은 hallucination 위험.
+
 ### D. 결과 ADR 기록
 
 - [ ] 결론 = `safe` / `deprecated` / `wrong-pattern` 중 하나로 분류

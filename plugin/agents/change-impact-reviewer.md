@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "이 변경이 영향 주는 컴포넌트·파일·외부 시스템 목록?"
+- 특히: import grep으로 영향 컴포넌트 매핑(`grep -rn "import.*<module>"`) / 외부 API·SQL·S3 키 변경의 소비자 측 마이그레이션 영향 / 단일 파일 PR 본문에 누락된 cascade 영향
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

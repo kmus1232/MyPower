@@ -37,19 +37,29 @@ Claude Code 운영자용 멀티 에이전트 스킬 프레임워크 — toy / ed
 
 ## 현재 상태
 
-v1 빌드 Step 0~3 완료. 다음 = Step 4 (4 checklist — plan/verification/pr-review/applying).
+v1 빌드 Step 0~3 완료 + Step 0~3 산출물 감사 fix 반영. 다음 = Step 4 (4 checklist — plan/verification/pr-review/applying).
 
-| Step | 산출 | commit |
+| Step | 산출 | 기준 commit |
 |---|---|---|
 | 0 | plugin manifest + smoke.sh 정적 검증 | d451f1f |
 | 1 | references 코어 7개 | 1515555 |
 | 2 | persona-checklists 12개 (2층) | 5632aeb |
 | 3 | agents 12개 (1층) | 477456f |
+| audit-fix | Step 0~3 감사 후 Critical/Important 개선 일괄 반영 | (본 브랜치) |
+
+audit-fix 반영 내역:
+- **C1**: `plugin/hooks/applying-approval-gate.sh` stub 배치 (Step 5 미작성 동안 install 후 Bash 정지 위험 차단). Step 5 진입 시 실제 검출 로직으로 교체
+- **C2**: `docs/adrs/2026-05-11-mypower-plugin-adopt.md`의 `mypower@mypower` 오타 3건 → `mypower@mypower-dev` 정정
+- **I1**: 12 agent `# 검토 lens` 섹션에 페르소나별 "특히:" 라인 1줄 추가 — 1차 컨텍스트 차별화 강화 (각 파일 41 → 42줄)
+- **I2**: `tech-currency-reviewer` frontmatter `tools`에 `WebFetch` 추가 (lens가 공식 docs 조회 명시)
+- **I4**: `adr-template.md`에 최소 깊이 가이드 표 + worked example 인용 / `decision-catalog-template.md` 각 §1~§6 default 옆에 "근거:" 1줄
+- **I5**: `rollback.md` composite 손실 시나리오(§E + 함정 4) / `tech-currency.md` MCP 결과 파싱 알고리즘(§C.1) / `completeness.md` needs_context 시뮬레이션 절차(§D.1·D.2)
+- **N1·N2**: README install 경로 `~/Projects/MyPower` → `<install-dir>` placeholder + 명시 안내 / plan Step 1.7 grep에 post-build 재실행용 예외 4건 추가 (`step{N}.md`·`{slug}-tech-{n}`·ambiguity.md self-meta·completeness.md grep 패턴 인용)
 
 - **빌드 plan**: [`docs/superpowers/plans/2026-05-11-mypower-v1-build.md`](docs/superpowers/plans/2026-05-11-mypower-v1-build.md) — Step 0~13 순서 실행. 각 Step acceptance criteria + 검증 grep 통과를 다음 Step 진입 조건으로 본다
 - **남은 산출물 (Step 4~13)**:
   - `plugin/references/` — checklist 4개 (Step 4)
-  - `plugin/hooks/applying-approval-gate.sh` — destructive 패턴 차단 (Step 5)
+  - `plugin/hooks/applying-approval-gate.sh` — destructive 패턴 차단 본체 (Step 5 — 현재는 stub 상태)
   - `plugin/skills/` — 7개 (Step 6~12, 6 lifecycle 슬래시 스킬 + tdd sub-process)
   - 통합 테스트 — 6 lifecycle + tdd + hook 차단 동작 1회씩 검증 (Step 13)
 - **v1 전체 종료 시점**에 본 섹션을 다시 압축한다

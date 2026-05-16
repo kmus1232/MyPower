@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "실수했을 때 복구 명령은? 자동인가 수동인가? 시간은?"
+- 특히: rollback 명령 명시 + 자동/수동 분류 + 시간 추정 / rollback 불가 작업(`terraform destroy`·`aws s3 rm --recursive`·webhook 발송 후 회수 불가) / composite 손실(DB migration `DROP COLUMN` + 비동기 backfill job 동시 배포 시 복구 순서 무너짐)
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

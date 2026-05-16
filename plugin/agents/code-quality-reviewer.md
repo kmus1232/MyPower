@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "버그 가능성·이름·테스트 빠짐·뻔한 perf 함정 어디?"
+- 특히: null/boundary/off-by-one/async race / RED→GREEN 순서(production 코드보다 테스트 먼저 — `tdd-guide.md`) / N+1 query·unbounded loop·메모리 누수 의심 패턴 / nested 깊이 3 초과·magic number
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

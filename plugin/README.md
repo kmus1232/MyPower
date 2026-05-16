@@ -8,18 +8,20 @@ Claude Code plugin — 6단계 lifecycle 스킬(brainstorming / writing-plan / e
 
 ## 설치
 
+`<install-dir>` = 본인이 원하는 디렉토리. 예: `~/Projects/MyPower`·`~/Code/MyPower`·`/opt/mypower` 등 자유.
+
 ### 시나리오 A — 운영자 본인 default (로컬 git working copy)
 
 ```bash
-git clone https://github.com/<owner>/MyPower ~/Projects/MyPower
-/plugin marketplace add ~/Projects/MyPower        # root .claude-plugin/marketplace.json 자동 발견
+git clone https://github.com/<owner>/MyPower <install-dir>
+/plugin marketplace add <install-dir>             # root .claude-plugin/marketplace.json 자동 발견
 /plugin install mypower@mypower-dev               # plugin/ 디렉토리만 cache로 복사 — docs/ 무관
 ```
 
 이후 갱신:
 
 ```bash
-cd ~/Projects/MyPower && git pull
+cd <install-dir> && git pull
 claude plugin update mypower@mypower-dev
 ```
 
@@ -35,7 +37,7 @@ claude plugin update mypower@mypower-dev
 ### 시나리오 C — 개발 중 빠른 테스트 보조
 
 ```bash
-claude --plugin-dir ~/Projects/MyPower/plugin     # plugin/ 디렉토리 직접 지정
+claude --plugin-dir <install-dir>/plugin          # plugin/ 디렉토리 직접 지정
 ```
 
 설치 후 6 lifecycle 슬래시 호출:

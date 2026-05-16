@@ -34,6 +34,15 @@
 - [ ] rollback 권한 (운영자 본인 / on-call / 관리자) 명시
 - [ ] rollback 후 데이터 정합성 검증 명령 (예: count·hash 비교)
 
+### E. composite 손실 시나리오 (단일 명령 rollback으론 부족한 케이스)
+
+단일 명령 1줄로 끝나는 rollback은 사실 드물다. 다음 조합형 케이스가 PR에 있는지 확인:
+
+- [ ] **DB migration + 비동기 backfill job 동시 배포** — code rollback 했는데 backfill job은 이미 큐에 박혀 있어 구버전 스키마에 신버전 row를 씀. 복구 순서: (1) backfill job 큐 drain (2) code revert (3) backfill 잔여 데이터 cleanup. 세 단계 모두 PR 본문에 기재됐는가
+- [ ] **외부 webhook 전송 후 내부 상태 rollback** — 외부 시스템엔 발송 완료 통보 갔는데 내부 DB는 rollback 됨 → 상태 불일치. 보상 트랜잭션(compensating transaction) 명시됐는가
+- [ ] **feature flag ON 상태에서 schema change** — code revert 해도 flag가 ON이면 신규 path 진입. flag OFF가 rollback의 0단계로 명시됐는가
+- [ ] **여러 서비스 동시 배포** — 한 서비스만 rollback 시 API 계약 깨짐. 서비스 간 호환 buffer(N-1 호환) 또는 일괄 rollback 절차 명시
+
 ## 5-tier severity 분류 가이드 (§8.3 본 페르소나 적용)
 
 | 라벨 | 본 페르소나 적용 예시 |
@@ -60,3 +69,19 @@
 1. **"revert 가능" 문구만** — PR 본문에 rollback 가능하다고만 적고 실제 명령·소요시간 미기재. 장애 시점에 절차 모름. Critical
 2. **DB migration drop column + backfill 없음** — 운영 후 rollback 시 데이터 손실. forward-only migration이라면 ADR + 운영자 승인 강제. Critical
 3. **S3 `rm --recursive`** — 휴지통 없는 destructive 동작. rollback 불가. ADR + 백업 절차 동반 강제. Critical
+4. **composite: code revert만 했는데 backfill job은 큐에 잔존** — PR 본문에 "revert만 하면 됨"이라 박혔는데 비동기 worker가 구버전 schema에 데이터 씀. 실제 rollback 흐름:
+
+```bash
+# 잘못된 rollback (단일 명령)
+git revert <sha> && git push  # ❌ backfill job은 여전히 실행 중
+
+# 올바른 rollback (composite — 3단계)
+# (1) backfill job 큐 drain (실행 중인 작업 finish, 새 작업 차단)
+kubectl scale --replicas=0 deployment/backfill-worker
+# (2) code revert
+git revert <sha> && git push
+# (3) 잔여 데이터 cleanup (구버전 schema에 박힌 신버전 row 식별·삭제)
+psql -c "DELETE FROM users WHERE created_at > '<deploy-time>' AND schema_version = 'v2'"
+```
+
+PR 본문에 (1)~(3) 단계 모두 명시되지 않으면 Critical. 단일 명령 1줄만 박힌 PR은 composite 손실 위험 분석이 누락된 것.

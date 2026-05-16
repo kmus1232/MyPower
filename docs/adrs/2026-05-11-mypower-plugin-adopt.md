@@ -22,7 +22,7 @@ v3.12 review 직후 운영자가 직관 제기:
 - 직접 settings.json 편집 폐기 → `hooks/hooks.json` (plugin manifest 표준)
 - `$MYPOWER_HOME` 환경변수 폐기 → `${CLAUDE_PLUGIN_ROOT}` (Claude Code가 plugin install 시 자동 설정)
 - symlink 생성 폐기 → plugin 디렉토리 하위 `skills/`·`agents/`를 Claude Code가 자동 인식
-- 갱신 흐름: `git pull` + `claude plugin update mypower@mypower` (alias로 한 줄 명령화 가능). install 진입점은 로컬 marketplace 등록 1회 (`/plugin marketplace add ~/mypower`) → `/plugin install mypower@mypower`
+- 갱신 흐름: `git pull` + `claude plugin update mypower@mypower-dev` (alias로 한 줄 명령화 가능). install 진입점은 로컬 marketplace 등록 1회 (`/plugin marketplace add <install-dir>`) → `/plugin install mypower@mypower-dev`
 - **운영자 본인 default 시나리오 = A (로컬 git working copy)**. 본인이 plugin owner + 사용자이므로 코드 편집·commit·push 가능한 working copy가 필수. 외부 사용자(fork·marketplace 받는 사람)는 시나리오 B(GitHub repo 직접 marketplace add — 로컬 working copy 없음). 개발 중 빠른 테스트는 시나리오 C(`claude --plugin-dir`)로 install 미발생
 
 **부수 결정 — 운영자 식별자 일반화 (배포 가능성 확보)**:
@@ -59,8 +59,8 @@ v3 결정의 핵심 근거였던 "git pull로 즉시 반영":
 
 | 흐름 | v3.12까지 (symlink) | v3.13 (plugin) |
 |---|---|---|
-| 갱신 | `cd ~/mypower && git pull` (symlink이라 즉시 반영) | `cd ~/mypower && git pull && claude plugin update mypower@mypower` (1단계 추가) |
-| alias 한 줄 명령화 | `alias mpup='cd ~/mypower && git pull'` | `alias mpup='cd ~/mypower && git pull && claude plugin update mypower@mypower'` |
+| 갱신 | `cd <install-dir> && git pull` (symlink이라 즉시 반영) | `cd <install-dir> && git pull && claude plugin update mypower@mypower-dev` (1단계 추가) |
+| alias 한 줄 명령화 | `alias mpup='cd <install-dir> && git pull'` | `alias mpup='cd <install-dir> && git pull && claude plugin update mypower@mypower-dev'` |
 
 alias 한 줄로 동등화 가능. 양보 1단계가 plugin 표준 채택의 이득(hooks 자동 등록 / 환경변수 자동 처리 / marketplace 배포 가능)에 비해 작음.
 

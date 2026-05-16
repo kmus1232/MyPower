@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "Out of scope 명시됐나? scope creep 있나?"
+- 특히: spec "Out of scope" 섹션 존재 + 명시 항목 1개 이상 / plan 갱신 없이 추가된 새 endpoint·파일·step / "while I was here" refactor 패스스루(spec §6.3.5 분류 A "plan scope 위반" 격상)
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

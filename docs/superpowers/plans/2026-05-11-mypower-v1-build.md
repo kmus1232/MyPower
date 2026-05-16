@@ -641,14 +641,22 @@ grep -E "^## §[1-6]" "${HARNESS}/plugin/references/decision-catalog-template.md
 ls "${HARNESS}/plugin/references/"*.md | wc -l
 # 기대: 7
 
-# 진짜 placeholder 잔존 0건 검사. 다음 3종은 가이드 의도상 정상 표기이므로 예외:
+# 진짜 placeholder 잔존 0건 검사. 다음 7종은 가이드 의도상 정상 표기이므로 예외:
 #   - decision-catalog-template.md 본문의 `{N}` 등 (템플릿 자체)
 #   - 가이드가 안내하는 ADR 파일명 패턴 `YYYY-MM-DD-{slug}-...` (사용자가 ADR 만들 때 갈아끼우라는 의도)
 #   - ambiguity-protocol.md의 `## 5. 미해소 항목 (TODO)` 정상 섹션 헤더
+#   - persona-checklists 본문의 `step{N}.md` 표기 (step 번호 placeholder — plan step의 일반 형식 인용)
+#   - tech-currency 본문의 `{n}` 표기 (`YYYY-MM-DD-{slug}-tech-{n}.md` ADR 파일명 패턴 일부)
+#   - persona-checklists/ambiguity.md 본문의 placeholder anti-pattern 메타 정의 (해당 파일 자체가 placeholder 검출 규칙 정의 — 본문 placeholder 토큰 인용이 불가피)
+#   - persona-checklists/completeness.md L48의 모호 부사 grep 패턴 명령 인용 (`(TBD|TODO|...) step{N}.md`)
 grep -rnE "(TBD|TODO|FIXME|XXX|\{slug\}|\{name\})" "${HARNESS}/plugin/references/" --include="*.md" \
     | grep -v "decision-catalog-template" \
     | grep -vE "YYYY-MM-DD-\{slug\}" \
     | grep -vE "ambiguity-protocol\.md:[0-9]+:## 5\. 미해소 항목 \(TODO\)" \
+    | grep -vE "step\{N\}\.md" \
+    | grep -vE "\{slug\}-tech-\{n\}" \
+    | grep -vE "persona-checklists/ambiguity\.md" \
+    | grep -vE "persona-checklists/completeness\.md.*적절히\|적당히\|필요시" \
     | wc -l
 # 기대: 0
 ```

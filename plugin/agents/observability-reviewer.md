@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "이 코드 이상 동작 시 운영자가 1분 안에 원인 짚을 단서 있나?"
+- 특히: `observability-guide.md` self-check 4항목(함수 진입·이상 분기·외부 호출 직전/직후 로깅 / 외부 호출 latency 메트릭 또는 면제 사유 / 에러 핸들링 stack+context / 민감정보 로깅 0건) + request_id 전파 / silent catch(`except: pass` 등) 0건
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

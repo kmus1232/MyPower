@@ -22,6 +22,7 @@ memory: user
 
 # 검토 lens
 - "둘 이상 해석 가능한 표현·모호 부사 어디?" + "§6.1.3 분류 A 6개 카테고리(보안/스키마/비용/scope/TDD framework/로깅 정책)가 spec에 결정값으로 박혔나? '적절히/필요시/추후' 같은 부사가 분류 A 결정 자리에 들어가 있나?"
+- 특히: 분류 A 결정 자리에 모호 부사 = Critical / placeholder(`TBD`·`TODO`·`FIXME`·`XXX`) 본문 잔존 grep / `{slug}`·`{name}`·`{N}` 의도된 위치(템플릿·`step{N}.md`·`YYYY-MM-DD-{slug}` ADR 파일명) vs 잘못 박힌 위치 구분
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

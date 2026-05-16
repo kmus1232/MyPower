@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "spec/plan에 빠진 요구사항·미정의 항목 있나?" + "이 step을 다른 세션 LLM이 받았을 때 답 없이 진행 못 하는 질문(executing-plan 시점 `needs_context` 발생 후보)이 무엇인가? 시뮬레이션 1회 후 후보 0건 보장"
+- 특히: §6.1.3 분류 A 6 카테고리(보안/스키마/비용/scope/TDD framework/로깅 정책)가 spec에 결정값으로 박혔는지 / `step{N}.md` 7섹션 빈 칸 0건 / fresh LLM 시뮬레이션 — 어느 줄에서 어떤 질문이 발동될지 1라운드 예측 후 후보 0건 보장
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

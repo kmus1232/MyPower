@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "`terraform plan` 확인했나? `--dry-run`·자동 승인 옵션 위험 없나?"
+- 특히: destructive 명령에 `-auto-approve`·`-y`·`--force` 사용 여부 / `terraform plan`·`kubectl --dry-run=client` 출력 인용 존재 / 운영자 승인 텍스트(spec §6.7.4 한국어 동의어) 인용 누락
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

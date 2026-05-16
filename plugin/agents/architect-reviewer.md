@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "이 변경이 아키텍처 경계 깨거나 의존성 방향 뒤집는가?"
+- 특히: 의존성 import 방향(`decision-catalog-template.md` §6 — domain→infra 단방향 보존, infra→domain 발견 시 Critical) / 추상화 누수(infra 세부가 domain 시그니처에 새는가) / 새 경계 추가 시 ADR 동반 여부
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

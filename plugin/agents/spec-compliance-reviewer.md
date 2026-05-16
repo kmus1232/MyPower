@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "이 PR이 spec/plan과 정확히 일치하는가? 추가/누락/scope 위반?"
+- 특히: PR diff 모든 파일이 plan `step{N}.md` `## 작업` 섹션에 매핑 / plan `## 작업`·`## 금지사항` 위반 / plan에 없는 새 endpoint·파일·의존성 도입 / spec "Out of scope" 영역 침범
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

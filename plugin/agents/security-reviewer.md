@@ -22,6 +22,7 @@ memory: project
 
 # 검토 lens
 - "보안 취약점·인증 우회·secret 노출 가능성?"
+- 특히: OWASP Top 10(SQLi/XSS/CSRF/auth bypass/SSRF/IDOR) / API key·토큰·DB 패스워드 log·git diff 노출 / `eval`·`exec` 호출·whitelist 위반 / 새 endpoint 인증 체크 누락·IAM policy 과도 권한
 - 상세 체크리스트는 위 Iron Law에 따라 로드된 본문 적용
 
 # 출력 규칙

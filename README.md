@@ -9,16 +9,19 @@ Claude Code 운영자용 멀티 에이전트 스킬 프레임워크 — toy / ed
 
 ## 현재 상태
 
-v1 빌드 진입 직전 — Step 0~13 빌드 plan(`docs/superpowers/plans/2026-05-11-mypower-v1-build.md`) 실행 대기. plugin/ 디렉토리는 빈 골격(`agents/` · `references/` · `skills/` · `.claude-plugin/`). v1 빌드 완료 시 7 SKILL.md + 12 agents/*.md + references 카탈로그 + hook script + smoke test가 plugin/ 하위에 채워지고 v1.0.0 tag.
+v1 빌드 Step 0~3 완료 — references 코어 7개 + persona-checklists 12개 + agents 12개 + plugin manifest + smoke.sh가 plugin/ 하위에 배치됨. 남은 작업: Step 4 (4 검토 checklist) → Step 5 (hook script) → Step 6~12 (skills 7개) → Step 13 (통합 테스트). v1 완료 시 v1.0.0 tag.
 
 ## 설치 (v1 빌드 완료 후 사용 가능)
 
+`<install-dir>` = git clone한 디렉토리(예: `~/Projects/MyPower` 또는 원하는 위치).
+
 ```bash
-# 운영자 본인 시나리오 A
-/plugin marketplace add ~/Projects/MyPower
+# 운영자 본인 시나리오 A (로컬 working copy)
+git clone https://github.com/<owner>/MyPower <install-dir>
+/plugin marketplace add <install-dir>
 /plugin install mypower@mypower-dev
 
-# 외부 사용자 시나리오 B
+# 외부 사용자 시나리오 B (fork·marketplace)
 /plugin marketplace add <owner>/MyPower
 /plugin install mypower@mypower-dev
 ```
