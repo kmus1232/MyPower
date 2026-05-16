@@ -2060,14 +2060,44 @@ PR 리뷰 단계에서 `tech-currency-reviewer`가 이 가이드의 trigger 조�
 
 plugin manifest 표준 `hooks/hooks.json`이 plugin install 시점에 자동 등록(§4.5 참조). prompt-level 장치는 LLM 협조 필요하지만, hooks는 Claude Code가 LLM 무관하게 차단.
 
+#### 10.2.1 v1.0 — destructive 명령 차단 1개
+
 이전에 hooks 6개를 설계했으나 검토 결과 sentinel 의존성·LLM 협조 의존성으로 hard enforcement 신뢰도 낮음. **destructive 명령 차단 1개만 남기고** 나머지는 prompt-level + PR 리뷰 + 운영자 검토로 대체.
 
-| Hook | Event | 차단 동작 | 차단 메시지 요약 |
+| Hook | Event | type | 차단 동작 | 차단 메시지 요약 |
+|---|---|---|---|---|
+| `mypower-applying-approval-gate` | PreToolUse (Bash + 스크립트 내부 destructive grep) | `command` | 승인 텍스트 부재 시 destructive 명령 차단 | "승인 미확인" |
+
+#### 10.2.2 v1.1+ — 4종 hook 통합 enforcement (`/goal`-style 자율 실행)
+
+ARP T-010(hook 신호 설계) 해소 결정. ADR `docs/adrs/2026-05-17-autonomous-execution-strategy.md`. 공식 hooks docs (`https://code.claude.com/docs/en/hooks`) 기준 schema-compatible. v1.1+에서 다음 4종을 플러그인 `hooks.json`에 추가:
+
+| event | hook type | 역할 | MyPower 매핑 자리 |
 |---|---|---|---|
-| `mypower-applying-approval-gate` | PreToolUse (Bash + 스크립트 내부 destructive grep) | 승인 텍스트 부재 시 destructive 명령 차단 | "승인 미확인" |
+| **PreToolUse** | `prompt` | destructive 명령 직전 안전성 평가 | applying-approval-gate (현재 `type: "command"` stub) → `type: "prompt"` 진화 |
+| **PostToolUse** | `prompt` | 도구 실행 결과 즉시 검증 | observability self-check (§6.3.3-1) hook 강제 |
+| **Stop** | `prompt` | 턴 종료 시점 lifecycle step 완료 조건 평가 (`/goal` 핵심 메커니즘 — v2.0.30+ 지원) | executing-plan Step 0 schema 게이트 hook 강제 |
+| **SubagentStop** | `prompt` | 페르소나 12명 finding 출력 종료 시 5단 보고 양식 검증 | persona-checklists §출력 양식 grep hook 강제 |
+
+**Stop hook 자율 루프 메커니즘** (공식 docs 인용):
+
+> "Stop | Yes | Prevents Claude from stopping, continues the conversation"
+
+Stop hook이 `decision: "block"` 반환 → Claude Code가 stop 차단, 다음 turn 자동 진입. `/goal`의 자율 루프와 동일.
+
+**`additionalContext` vs `reason` — 결정적 설계 포인트**:
+
+| 필드 | 전달 대상 |
+|---|---|
+| `reason` | 사용자에게만 표시 — Claude 모델 컨텍스트 미주입 |
+| `additionalContext` | Claude 컨텍스트 창에 system reminder로 주입 |
+
+4종 hook judge의 응답은 모두 `additionalContext`로 다음 turn 모델에 가이드 박는다. `reason`만 쓰면 모델이 못 봐서 자율 루프 작동 안 함.
+
+**undocumented 가드 의존 최소화**: `stop_hook_active`·`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`은 공식 미문서화. 본 spec은 의존 안 함. 무한루프 차단은 judge prompt 본문 가이드("이미 N번 시도. 영구 불가능이면 `ok:true` 반환")로 처리.
 
 > [!IMPORTANT]
-> hooks는 명백한 누락만 차단. 모호한 상황에서 차단하면 운영자가 hooks 비활성화하는 우회 발생. false positive 회피가 hooks 설계 원칙.
+> hooks는 명백한 누락만 차단. 모호한 상황에서 차단하면 운영자가 hooks 비활성화하는 우회 발생. false positive 회피가 hooks 설계 원칙. v1.1+ 4종 hook 도입 시 prompt 본문에 false positive 방지 가이드 명시 필수.
 
 ---
 
@@ -2095,10 +2125,10 @@ v1.1부터 mypower writing-plan으로 self-application 시작 — mypower repo �
 | 2 | `references/persona-checklists/*.md` 12개 | 12개 파일 존재 + 페르소나별 sub-checklist + 5-tier severity 분류 가이드 grep |
 | 3 | `agents/*.md` 12개 (1층 골격 + Read 강제 Iron Law) | 12개 파일 존재 + 각 파일에 `Read tool로 reference 로드` 문구 grep + frontmatter `tools:` 필드 명시 |
 | 4 | `references/{plan,verification,pr-review,applying}-checklist.md` 4개 | 4개 파일 존재 + pr-review-checklist에 §8.2.1 합의 알고리즘 grep + applying-checklist에 한국어 승인 동의어 §6.7.4 grep |
-| 5 | `hooks/applying-approval-gate.sh` 1개 (destructive 명령 차단) | hook script 실행 + destructive 패턴 stub 입력 시 exit 1 + stderr 메시지 출력 (분기점 1b — hook stderr only). hook 등록 자체는 step 0 `hooks/hooks.json`에서 처리됨 |
+| 5 | `hooks/applying-approval-gate.sh` 1개 (destructive 명령 차단, v1.0 `type: "command"` stub) | hook script 실행 + destructive 패턴 stub 입력 시 exit 1 + stderr 메시지 출력 (분기점 1b — hook stderr only). hook 등록 자체는 step 0 `hooks/hooks.json`에서 처리됨. **v1.1+ Step 14에서 `type: "prompt"` PreToolUse hook으로 진화 — ADR `docs/adrs/2026-05-17-autonomous-execution-strategy.md` §B 매트릭스** |
 | 6 | `skills/brainstorming/SKILL.md` | 9개 골격 섹션(§5.2) 헤더 grep + §6.1.1 분류 게이트 grep + §6.1.3 사전 체크리스트 grep + §5.5 평가 점수 루프 진입 명시 grep |
 | 7 | `skills/writing-plan/SKILL.md` | 9개 골격 섹션 + `_review.md` schema 7-pass(§6.2.2-1) grep + §6.2.3 절차 1.5번 TDD 환경 점검 게이트 grep + step{N}.md 7섹션(§6.2.2 G2) grep |
-| 8 | `skills/executing-plan/SKILL.md` | 9개 골격 섹션 + Step 0 schema 재검증(§6.3.2) grep + observability self-check 4항목(§6.3.3-1) grep + §6.3.5 분류 A 게이트 grep |
+| 8 | `skills/executing-plan/SKILL.md` | 9개 골격 섹션 + Step 0 schema 재검증(§6.3.2) grep + observability self-check 4항목(§6.3.3-1) grep + §6.3.5 분류 A 게이트 grep. **v1.1+ Step 14에서 Stop hook `type: "prompt"` 결합 — `/goal`-style 자율 루프 메커니즘 통합 (ADR `2026-05-17-autonomous-execution-strategy.md` §B Stop event 행)** |
 | 9 | `skills/tdd/SKILL.md` (sub-process) | 9개 골격 섹션 + Iron Law(§6.4.1) grep + setup gate(§6.4.3) grep + Red-Green-Refactor 3단계 grep |
 | 10 | `skills/verifying/SKILL.md` | 9개 골격 섹션 + Common Failures 표 grep + Gate Function 정의 grep |
 | 11 | `skills/pr-review/SKILL.md` | 9개 골격 섹션 + diff 분류기(§8.2.2) grep + 합의 알고리즘(§8.2.1) grep + 머지 차단 규칙(§8.2.3) grep + agent-team v1 포함 명시(§11.3) grep |
@@ -2190,7 +2220,7 @@ self-judge:
 | 21 | **LangSmith 스타일 tracing + cost tracking** | 高 / 中 — 운영자에게 비용 가시성 큰 가치 (LLM API 비용·실행 시간 추적) | v1.1 우선 항목. 토큰 비용이 신경 쓰이기 시작하는 시점 |
 | 20 | CrewAI long-term memory | 中 / 大 — doubt-driven (자기 의심 기반 검증)과 충돌 (memory가 "이전 OK"라고 하면 doubt 약화) | 기각 후보. 도입하려면 doubt-driven과 분리 가능한 적용 영역 명시 |
 | 22 | systematic-debugging / dependency upgrade / PR 응답 재작업 사이클 | — | 별도 스킬 후속. mypower 코어가 안정된 후 추가 검토 |
-| 23 | **hooks 추가 도입 검토** — 이전 차수에서 설계했다가 단순화로 폐기된 5개 hook(`executing-plan-gate`, `tdd-evidence-gate`, `adrs-read-gate`, `step-status-gate`, `sentinel-cleanup`). v1 사용 후 운영자가 실제 우회·누락 사례를 겪을 때 — 그 사례에 한정해 hook 1개씩 도입 검토. 한 번에 다 도입하지 않음 (sentinel 의존성 문제는 그대로 남아있음) | 高(상황별) / 中 | v1 운영 1~2개월 후 실제 사례 누적 시 검토 |
+| 23 | **hooks 추가 도입 — `/goal`-style 자율 실행 4종 매트릭스** (ADR `docs/adrs/2026-05-17-autonomous-execution-strategy.md`에서 결정 누적). 채택: PreToolUse·PostToolUse·Stop·SubagentStop 모두 `type: "prompt"` + `additionalContext`로 다음 turn 모델 가이드 전달. Stop hook이 `decision: "block"` 반환 시 Claude Code가 자율 진행 (`/goal` 메커니즘 동일). **`reason`은 모델 미주입 — `additionalContext` 사용 강제**. 이전 차수의 5개 hook 후보(`executing-plan-gate`·`tdd-evidence-gate`·`adrs-read-gate`·`step-status-gate`·`sentinel-cleanup`)는 4종 매트릭스의 PostToolUse·SubagentStop 영역에 흡수 또는 기각 | 高 / 中 — small fast model judge 비용. v1.1+ Step 14에서 prompt 본문 작성 |
 
 > [!NOTE]
 > 백로그 항목은 v1 mypower의 사용 경험 누적 후 재평가. 운영자가 실제 막히는 영역에서 우선순위 결정.

@@ -205,13 +205,32 @@ EY6 = (H) => H83.has(H.toLowerCase())
 | **`type: "prompt"` hook 인프라** | `settings.json` `hooks` 필드의 같은 메커니즘. `/goal`은 세션 한정 + UI wrapper일 뿐. 운영자가 `~/.claude/settings.json`에 `Stop` hook을 `type: "prompt"`로 직접 박으면 같은 동작 가능 |
 | **enforcement 강도** | prompt-level reminder + **system-level Stop 차단** — MyPower의 `<HARD-GATE>`·Iron Law·mermaid 종료 노드보다 강함 (LLM이 무시해도 hook이 system 레벨에서 차단) |
 
-## 8. MyPower 관점 시사점
+## 8. MyPower 관점 시사점 (2026-05-17 갱신)
 
-- MyPower의 destructive 차단 hook (Step 5)은 **PreToolUse** 영역 — `/goal`(Stop)과 직교
-- MyPower의 슬래시 스킬(brainstorming~applying)이 작업 종료 조건을 LLM-as-judge로 강제하려면 본 메커니즘 모방 가능. 단:
-  - `type: "prompt"` hook이 플러그인 `hooks.json` 스키마에 지원되는지 별도 확인 필요. 본 분석에선 `sessionHooksRegistry` 내부 API만 확인 — 외부 hooks.json 스키마 명세는 추가 검증 필요
-  - 토큰 비용·지연 트레이드오프 인식 필수 (페르소나 12명 + judge 1회/턴 → 누적 비용 폭증)
-- ARP(ambiguity-protocol)의 4단계 처리 + 검증 에이전트 v1.1 설계가 본 `/goal` 메커니즘에서 영감 받을 여지: judge를 ARP 분류 검증용으로 재활용
+본 섹션은 초기 작성(2026-05-16) 후 **anchor 반전**을 거쳤다 — 이전엔 본문에 "type: "prompt" hook이 플러그인에 지원되는지 추가 검증 필요"라고만 적혔으나, 공식 hooks 문서(`https://code.claude.com/docs/en/hooks`)로 확인한 결과 **플러그인 영역에서 schema-compatible하게 가능**하다. ADR [`2026-05-17-autonomous-execution-strategy.md`](../adrs/2026-05-17-autonomous-execution-strategy.md)가 본 발견을 anchor로 v1.1+ 채택 결정.
+
+### 8.1 본 reference의 anchor 반전 (transparency)
+
+- **초기 결론 (폐기)**: 바이너리 임베디드 도움말 string "Only available for tool events: PreToolUse, PostToolUse, PermissionRequest"를 근거로 *플러그인 Stop hook에 `type: "prompt"` 불가* 결론
+- **공식 docs 확인 결과**: `type: "prompt"`·`type: "agent"`는 **Stop 포함 대부분 event에서 허용** (제외 10종: `StopFailure`·`WorktreeRemove`·`Notification`·`SessionEnd`·`SessionStart`·`Setup`·`CwdChanged`·`FileChanged`·`PostCompact`·`InstructionsLoaded`). CHANGELOG v2.0.30이 "Added prompt-based stop hooks" 명시
+- **교훈**: 바이너리 내부 string은 *언제 임베디드된 도움말인지 시점 정보가 없어* stale 가능성. **공식 docs 우선**. 본 reference §9 추출 방법은 함수 본문 추적엔 유효하나 *정책 anchor*로는 공식 docs를 우선 인용해야 함
+
+### 8.2 갱신된 MyPower 시사점
+
+- **v1.0 (현재)**: MyPower의 destructive 차단 hook (Step 5)은 **PreToolUse** 영역 + `type: "command"` stub. `/goal`-style Stop 자율 루프는 v1.0에 0건
+- **v1.1+**: 플러그인 영역 `hooks.json`에 **4종 hook 통합 enforcement** 박음 — ADR 결정:
+
+| event | hook type | MyPower 매핑 |
+|---|---|---|
+| **PreToolUse** | `prompt` | applying-approval-gate (Step 5 `type: "command"` stub → 진화) |
+| **PostToolUse** | `prompt` | observability self-check (spec §6.3.3-1) hook 강제 |
+| **Stop** | `prompt` | executing-plan Step 0 schema 게이트 (`/goal` 핵심 메커니즘 동일) |
+| **SubagentStop** | `prompt` | 페르소나 12명 finding 5단 보고 양식 검증 |
+
+- **결정적 설계 포인트**: judge 결과를 다음 turn 모델에 가이드 박으려면 **`reason`이 아닌 `additionalContext` 필드 사용 필수** — 공식 docs 명시. `reason`은 사용자에게만 표시
+- **영역 분기 불필요**: 초기 plan은 "플러그인 영역에서 안 되니 개인 로컬 dotfiles 영역과 분리"를 권고했으나 공식 docs 확인 결과 **플러그인 영역 단일 통합**으로 가능. 개인 로컬 분기는 보안 정책(transcript 외부 API 전송 차단) 필요 시에만 선택지
+- **ARP T-010 해소**: 본 매트릭스가 ARP §4.3 hook 신호 설계의 미해소 항목(T-010)을 닫음. ARP §4.3은 본 ADR을 인용하도록 갱신됨
+- **토큰 비용·지연 인식**: turn당 최대 4 judge call (4종 활성 시). small fast model 사용으로 페르소나 12명 호출보다 저렴하나 누적 비용·지연 측정 필요 — v1.1 운영 1개월 후 별도 ADR로 비활성화 결정 검토
 
 ## 9. 분석 방법 — 어떻게 추출했나
 

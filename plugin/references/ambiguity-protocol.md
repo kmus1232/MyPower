@@ -91,18 +91,37 @@ MyPower plugin의 6 lifecycle 슬래시 스킬 + tdd 스킬(총 7개. brainstorm
 
 **v1 MVP에서는 검증 에이전트 미도입.** v1.1+에서 작성 step이 빌드 plan에 추가되고 차단 권한을 갖춤. **v1 동안 ARP 강제는 슬래시 스킬 프롬프트 단독** — LLM이 무시할 가능성 존재하므로 운영자 사후 transcript 검토 부담이 v1 기간 동안 유지된다. 차단 권한 분배는 v1.1+에서 hook 도입과 함께 재설계된다(§4.3).
 
-### 4.3 hook — MVP에서 미도입, v1.1+에서 핵심 강제 메커니즘으로 도입 예정
+### 4.3 hook — v1.1+ 4종 hook 통합 enforcement (T-010 해소)
 
-**hook은 본 규칙의 핵심 강제 메커니즘으로 인식**한다. 코드 편집·도구 호출·운영자 질문 발화 시점에 즉각 발동 가능한 유일한 수단이라, 검증 에이전트(commit 시점)만으론 잡히지 않는 즉각성 영역을 본질적으로 hook이 채워야 한다.
+**hook은 본 규칙의 핵심 강제 메커니즘**. 코드 편집·도구 호출·턴 종료·서브에이전트 종료 시점에 즉각 발동 가능한 유일한 수단이라, 검증 에이전트(commit 시점)만으론 잡히지 않는 즉각성 영역을 hook이 채운다.
 
-다만 **MVP(v1)에서는 hook을 도입하지 않는다**. 이유는 hook 자체가 부적합해서가 아니라 **어떤 신호로 어느 단계를 enforce할지 설계가 아직 합의되지 않았기 때문**:
+**MVP(v1) — hook 미도입**. v1 빌드 일정 보호 우선. v1 동안 ARP 강제는 슬래시 스킬 프롬프트 단독 — LLM 무시 가능성 인정.
 
-- mtime 비교 — 정상 흐름(가정 없는 작은 편집)과 비정상 흐름(가정 누락)을 구분 못함. 채택 보류
-- 계획 파일 내용 분석 — hook이 LLM 분석을 못함. 채택 보류
-- 코드 변경량 임계 — 가정 유무와 무관. 채택 보류
-- 에이전트 자체 메타 보고 — 우회 인센티브 생성. 채택 보류
+**v1.1+ — 4종 hook 통합 채택** (T-010 해소). 본 ADR [`docs/adrs/2026-05-17-autonomous-execution-strategy.md`](../../docs/adrs/2026-05-17-autonomous-execution-strategy.md)가 hook 신호 설계를 닫음. 공식 hooks 문서(`https://code.claude.com/docs/en/hooks`) 기준 schema-compatible:
 
-v1.1+ 단계에서 신호 설계 ADR을 거쳐 도입한다. 그때까지의 trade-off는 즉각성 손실 — 가정 누락이 코드 편집 직후가 아니라 commit 직전에 잡힘. MVP 한정 수용.
+| event | hook type | ARP 매핑 — enforce할 단계 |
+|---|---|---|
+| **PreToolUse** | `prompt` | 4단(운영자 질문) 직전 안전성 평가 — destructive 명령 진입 차단 |
+| **PostToolUse** | `prompt` | 1단(스스로 찾기) 결과 검증 — 도구 실행 결과 즉시 lens 통과 |
+| **Stop** | `prompt` | 턴 종료 시점 lifecycle step 완료 조건 평가 — `/goal` 핵심 메커니즘과 동일 (v2.0.30+ 지원) |
+| **SubagentStop** | `prompt` | 3단(전문 서브에이전트 위임) 결과 양식 검증 — 페르소나 12명 finding 5단 보고 양식 강제 |
+
+(나머지 hook 후보는 폐기 — mtime 비교·코드 변경량 임계는 ARP 단계와 무관. 에이전트 자체 메타 보고는 우회 인센티브.)
+
+**`additionalContext` 사용 강제 (결정적)**:
+
+공식 docs:
+
+| 필드 | 전달 대상 |
+|---|---|
+| `reason` | **사용자에게만 표시** — Claude 모델 컨텍스트 미주입 |
+| `additionalContext` | Claude 컨텍스트 창에 system reminder로 주입 |
+
+→ 본 4종 hook의 judge가 ARP 단계 위반 감지 시 결과를 **`additionalContext` 필드**에 박는다. `reason`만 사용하면 사용자만 보고 모델은 못 봐서 자율 루프가 작동 안 함. judge prompt 본문에 "Return JSON `{ok, additionalContext}`" 강제.
+
+**undocumented 가드 의존 최소화**: `stop_hook_active`·`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP`은 공식 미문서화. 본 ARP는 명시적 의존 안 함. 무한루프 방지는 judge prompt 본문 가이드("이미 N번 시도. 영구 불가능이면 `ok:true` 반환")로 처리.
+
+v1.1+ 빌드 plan에 4종 hook prompt 본문 작성 Step 추가 — 본 ADR 후속.
 
 ## 5. 미해소 항목 (TODO)
 
@@ -119,8 +138,11 @@ v1.1+ 단계에서 신호 설계 ADR을 거쳐 도입한다. 그때까지의 tra
 | T-007 | 운영자 미응답 timeout 정책 (특히 비가역 default) |
 | T-008 | 실행 에이전트의 계획 수정 권한 경계 (append-only 강제 여부) |
 | T-009 | 컨텍스트 압축 후 계획 파일 재로드 경로 |
-| **T-010** | **hook 신호 설계 — 어떤 신호(분류 라벨·계획 내용 patch·코드 변경 메타 등)로 어느 단계(1단·2단)를 어떻게 enforce할지. v1.1+ 핵심 강제 메커니즘으로 도입** |
+| ~~T-010~~ | ~~hook 신호 설계~~ — **§4.3에서 해소**: 4종 hook 매트릭스(PreToolUse·PostToolUse·Stop·SubagentStop, 모두 `type: "prompt"` + `additionalContext`) v1.1+ 채택. 결정 ADR [`2026-05-17-autonomous-execution-strategy.md`](../../docs/adrs/2026-05-17-autonomous-execution-strategy.md) |
 
 ## 6. 참조
 
-- 채택 결정·trade-off·hook 폐기 근거·검증 에이전트 단일 차단 권한 결정은 ADR `docs/adrs/2026-05-13-ambiguity-protocol-adopt.md` 참조 (MyPower 본 repo의 git clone 시 학습 자료로 노출)
+- ARP 채택 결정·trade-off·hook 폐기 근거·검증 에이전트 단일 차단 권한 결정: ADR [`docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`](../../docs/adrs/2026-05-13-ambiguity-protocol-adopt.md)
+- T-010 hook 신호 설계 해소 결정 (v1.1+ 4종 hook 매트릭스): ADR [`docs/adrs/2026-05-17-autonomous-execution-strategy.md`](../../docs/adrs/2026-05-17-autonomous-execution-strategy.md)
+- Claude Code `/goal` 내부 동작 분석 (4종 hook 매트릭스의 reference 모델): [`docs/references/2026-05-16-goal-command-internals.md`](../../docs/references/2026-05-16-goal-command-internals.md)
+- Claude Code hooks 공식 docs: `https://code.claude.com/docs/en/hooks` — `additionalContext` 정의·event별 hook type 매트릭스의 공식 anchor

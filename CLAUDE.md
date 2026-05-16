@@ -75,6 +75,8 @@ audit-fix 반영 내역:
 | ADR | [`docs/adrs/2026-05-11-mypower-changelog-policy.md`](docs/adrs/2026-05-11-mypower-changelog-policy.md) | 변경 이력 정책 |
 | ADR | [`docs/adrs/2026-05-12-mypower-docs-plugin-split.md`](docs/adrs/2026-05-12-mypower-docs-plugin-split.md) | docs/ vs plugin/ 분리 |
 | ADR | [`docs/adrs/2026-05-13-ambiguity-protocol-adopt.md`](docs/adrs/2026-05-13-ambiguity-protocol-adopt.md) | 모호함 처리 규칙(ARP) 채택 + MVP 강제 메커니즘 설계 (hook·검증 에이전트 v1.1+) |
+| ADR | [`docs/adrs/2026-05-17-autonomous-execution-strategy.md`](docs/adrs/2026-05-17-autonomous-execution-strategy.md) | `/goal`-style 자율 실행 전략 — v1.1+ 4종 hook(`prompt` type, Pre/PostToolUse·Stop·SubagentStop) 통합. ARP T-010 해소 |
+| reference | [`docs/references/2026-05-16-goal-command-internals.md`](docs/references/2026-05-16-goal-command-internals.md) | Claude Code `/goal` 내부 동작 분석 — 4종 hook 매트릭스의 reference 모델 |
 
 새 결정은 spec 갱신 또는 ADR 추가로 누적한다. README나 본 CLAUDE.md 본문에 결정을 박지 않는다.
 
